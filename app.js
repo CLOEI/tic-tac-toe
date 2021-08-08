@@ -126,7 +126,7 @@ const minimax = (node, depth, maximizingPlayer) => {
 
     if(maximizingPlayer){
         let bestScore = -Infinity;
-        player.currentIsPlayer = !player.currentIsPlayer;
+        player.currentIsPlayer = false;
 
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
@@ -138,7 +138,7 @@ const minimax = (node, depth, maximizingPlayer) => {
         return bestScore;
     }else {
         let bestScore = +Infinity;
-        player.currentIsPlayer = !player.currentIsPlayer;
+        player.currentIsPlayer = true;
 
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
