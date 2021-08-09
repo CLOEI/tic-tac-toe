@@ -94,7 +94,6 @@ const enemyMove = () => {
     for(let cell of gameCells){ // ai play a move
         if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
             cell.classList.add('enemy');
-            console.log(cell.dataset.index);
             const score = minimax(gameCells, 0, false) // simulated player played a move;
             cell.classList.remove('enemy');
             if(score > bestScore){
@@ -122,16 +121,14 @@ const minimax = (node, depth, maximizingPlayer) => {
         return 1;
     }else if(gameData.draw){
         return 0;
-    }else{
-        player.currentIsPlayer = !player.currentIsPlayer;
     }
-
-    if(maximizingPlayer){
+    
+    if(maximizingPlayer && player.currentIsPlayer){
         let bestScore = -Infinity;
-
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
                 cell.classList.add('enemy');
+                player.currentIsPlayer = false;
                 bestScore = Math.max(bestScore, minimax(gameCells, 0, false));
                 cell.classList.remove('enemy');
             }
@@ -139,10 +136,10 @@ const minimax = (node, depth, maximizingPlayer) => {
         return bestScore;
     }else {
         let bestScore = +Infinity;
-
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
                 cell.classList.add('player');
+                player.currentIsPlayer = true;
                 bestScore = Math.min(bestScore, minimax(gameCells, 0, true));
                 cell.classList.remove('player');
             }
