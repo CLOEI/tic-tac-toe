@@ -122,6 +122,8 @@ const minimax = (node, depth, maximizingPlayer) => {
         return 1;
     }else if(gameData.draw){
         return 0;
+    }else{
+        player.currentIsPlayer = !player.currentIsPlayer;
     }
 
     if(maximizingPlayer){
@@ -129,7 +131,6 @@ const minimax = (node, depth, maximizingPlayer) => {
 
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
-                player.currentIsPlayer = !player.currentIsPlayer;
                 cell.classList.add('enemy');
                 bestScore = Math.max(bestScore, minimax(gameCells, 0, false));
                 cell.classList.remove('enemy');
@@ -141,7 +142,6 @@ const minimax = (node, depth, maximizingPlayer) => {
 
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
-                player.currentIsPlayer = !player.currentIsPlayer;
                 cell.classList.add('player');
                 bestScore = Math.min(bestScore, minimax(gameCells, 0, true));
                 cell.classList.remove('player');
