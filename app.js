@@ -26,6 +26,7 @@ const resetBoard = () => {
         element.removeEventListener('click', clickHandler);
         element.addEventListener('click', clickHandler, {once: true});
     }
+    console.clear();
     gameLog.innerHTML = '';
     player.currentIsPlayer = true;
 }
@@ -36,7 +37,7 @@ const clickHandler = (e) => {
     }else e.target.classList.add('enemy');
 
 
-    const gameData = checkCondition();
+    const gameData = checkCondition(gameCells);
     if(gameData.win || gameData.draw){
         displayLog(e, `${gameData.win ? 'win' : 'draw'}`);
         for(let element of gameCells){
@@ -51,13 +52,13 @@ const clickHandler = (e) => {
     }
 }
 
-const checkCondition = () => {
+const checkCondition = (board) => {
     const win = winningCombination.some((combination) => {
         return combination.every((val) => {
-            return gameCells[val].classList.contains(player.currentIsPlayer ? 'player' : 'enemy');
+            return board[val].classList.contains(player.currentIsPlayer ? 'player' : 'enemy');
         })
     })
-    const draw = Array.from(gameCells).every((elem) => {
+    const draw = Array.from(board).every((elem) => {
         return elem.classList.contains('player') || elem.classList.contains('enemy');
     })
     return {
@@ -87,23 +88,31 @@ const enemyMove = () => {
             player.currentIsPlayer = true;
         }
     } */
-
+   
     let bestScore = -Infinity;
-    let bestMove = 0;
-
-    for(let cell of gameCells){ // ai play a move
+    let index;
+    for(let cell of gameCells){
         if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
             cell.classList.add('enemy');
-            const score = minimax(gameCells, 0, false) // simulated player played a move;
+            let score = minimax(gameCells, 0, false);
+            console.log(score, cell.dataset.index);
             cell.classList.remove('enemy');
-            if(score > bestScore){
+            if(bestScore < score){
                 bestScore = score;
-                bestMove = cell.dataset.index;
+                index = cell.dataset.index;
             }
         }
     }
+    console.log(bestScore, index, 'best');
     player.currentIsPlayer = false;
-    gameCells[bestMove].click();
+    gameCells[index].click();
+
+}
+
+const emptyColumn = (board) => {
+    return Array.from(board).filter((val) => {
+        return !val.classList.contains('player') && !val.classList.contains('enemy');
+    })
 }
 
 /*
@@ -114,38 +123,41 @@ const enemyMove = () => {
 */
 
 const minimax = (node, depth, maximizingPlayer) => {
-    const gameData = checkCondition();
+    // terminal state
+    const gameData = checkCondition(node);
+    const emptyCell = emptyColumn(node);
     if(gameData.win && gameData.winningPlayer == player.x){
-        return -1;
+        return -1 * (emptyCell.length + 1);
     }else if(gameData.win && gameData.winningPlayer == player.o){
-        return 1;
+        return 1 * (emptyCell.length + 1);
     }else if(gameData.draw){
         return 0;
     }
-    
-    if(maximizingPlayer && player.currentIsPlayer){
+    player.currentIsPlayer = !player.currentIsPlayer
+    if(maximizingPlayer){
         let bestScore = -Infinity;
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
                 cell.classList.add('enemy');
-                player.currentIsPlayer = false;
-                bestScore = Math.max(bestScore, minimax(gameCells, 0, false));
+                bestScore = Math.max(bestScore, minimax(node, depth + 1, false));
                 cell.classList.remove('enemy');
             }
         }
+        player.currentIsPlayer = true;
         return bestScore;
-    }else {
-        let bestScore = +Infinity;
+    }else{
+        let bestScore = Infinity;
         for(let cell of node){
             if(!cell.classList.contains('player') && !cell.classList.contains('enemy')){
                 cell.classList.add('player');
-                player.currentIsPlayer = true;
-                bestScore = Math.min(bestScore, minimax(gameCells, 0, true));
+                bestScore = Math.min(bestScore, minimax(node, depth + 1, true));
                 cell.classList.remove('player');
             }
         }
+        player.currentIsPlayer = false;
         return bestScore;
     }
+
 }
 
 const gameStart = () => {
